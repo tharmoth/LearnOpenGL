@@ -69,25 +69,84 @@ int main(void)
     }
 
     glViewport(0, 0, 800, 600);
+    glEnable(GL_DEPTH_TEST);
+
+    float cubeVertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };
+
 
     const float vertices[] = {
-        // positions          // colors           // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-       -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-       -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
+        // positions         // texture coords
+        0.5f,  0.5f, 0.0f,   1.0f, 1.0f,   // top right
+        0.5f, -0.5f, 0.0f,   1.0f, 0.0f,   // bottom right
+       -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,   // bottom left
+       -0.5f,  0.5f, 0.0f,   0.0f, 1.0f    // top left
    };
     const unsigned int indices[] = {
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
     };
 
-    const Vertex vertex = vertex_new(vertices, sizeof(vertices), indices, sizeof(indices));
+    const Vertex vertex = vertex_new(cubeVertices, sizeof(cubeVertices), indices, sizeof(indices));
 
     const Shader shader = shader_new("shaders/shader.vs", "shaders/shader.fs");
     shader_use(shader);
     shader_set_int(shader, "texture1", 0);
     shader_set_int(shader, "texture2", 1);
+
+    mat4 view = {
+        1.0f, 0, 0, 0,
+        0, 1.0f, 0, 0,
+        0, 0, 1.0f, 0,
+        0, 0, 0, 1.0f
+      };
+    glm_translate(view, (vec3) {0.0f, 0.0f, -3.0f});
+    shader_set_mat4(shader, "view", view);
+
+    mat4 projection;
+    glm_perspective(glm_rad(45.0f), 800.0f/600.0f, 0.1f, 100.0f, projection);
+    shader_set_mat4(shader, "projection", projection);
 
     const Texture texture_one = texture_new("data/container.jpg", GL_RGB);
     const Texture texture_two = texture_new("data/awesomeface.png", GL_RGBA);
@@ -97,9 +156,21 @@ int main(void)
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture_two.ID);
 
+    vec3 cubePositions[] = {
+        { 0.0f,  0.0f,  0.0f},
+        { 2.0f,  5.0f, -15.0f},
+        {-1.5f, -2.2f, -2.5f},
+        {-3.8f, -2.0f, -12.3f},
+        { 2.4f, -0.4f, -3.5f},
+        {-1.7f,  3.0f, -7.5f},
+        { 1.3f, -2.0f, -2.5f},
+        { 1.5f,  2.0f, -2.5f},
+        { 1.5f,  0.2f, -1.5f},
+        {-1.3f,  1.0f, -1.5f}
+    };
 
-    float rotation = 0;
-    float scale = 1;
+    float cubeRotate = 0;
+    float rotate = 0;
     float time = glfwGetTime();
     // render loop
     // -----------
@@ -116,34 +187,39 @@ int main(void)
         // Rendering commands
         // ------------------
         glClearColor(.2f, .3f, .3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Draw the first square
-        rotation += 90 * delta;
-        mat4 trans = {
+
+        rotate += 90 * delta;
+        cubeRotate += 90 * delta;
+
+        float x = 12 * sin(glm_rad(rotate));
+        float y = 12 * cos(glm_rad(rotate));
+
+        mat4 view = {
             1.0f, 0, 0, 0,
             0, 1.0f, 0, 0,
             0, 0, 1.0f, 0,
             0, 0, 0, 1.0f
           };
-        glm_translate(trans, (vec3) {0.5f, -0.5f, 0.0f});
-        glm_rotate(trans, glm_rad(rotation), (vec3) {0.0f, 0.0f, 1.0f}) ;
-        glm_scale(trans, (vec3) {0.5, 0.5, 0.5});
-        shader_set_mat4(shader, "transform", trans);
-        vertex_draw(vertex);
+        // glm_translate(view, (vec3) {x, 0.0f, y});
+        glm_lookat((vec3) {x, .3f * x, y}, (vec3) {0.0f, 0.0f, 0.0f}, (vec3) {0.0, 1.0f, 0.0}, view);
+        shader_set_mat4(shader, "view", view);
 
-        // Draw the second square
-        scale = sin(time) / 2.0f + 1.0;
-        mat4 trans2 = {
-            1.0f, 0, 0, 0,
-            0, 1.0f, 0, 0,
-            0, 0, 1.0f, 0,
-            0, 0, 0, 1.0f
-          };
-        glm_translate(trans2, (vec3) {-0.5f, 0.5f, 0.0f});
-        glm_scale(trans2, (vec3) {scale, scale, scale});
-        shader_set_mat4(shader, "transform", trans2);
-        vertex_draw(vertex);
+        for(unsigned int i = 0; i < 10; i++)
+        {
+            mat4 model = {
+                1.0f, 0, 0, 0,
+                0, 1.0f, 0, 0,
+                0, 0, 1.0f, 0,
+                0, 0, 0, 1.0f
+              };
+            glm_translate(model, cubePositions[i]);
+            glm_rotate(model, glm_rad(20.0f * i + cubeRotate * i / 3), (vec3) {1.0f, 0.3f, 0.5f});
+            shader_set_mat4(shader, "model", model);
+
+            vertex_draw(vertex);
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
