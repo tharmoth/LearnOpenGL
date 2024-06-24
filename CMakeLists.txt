@@ -53,6 +53,8 @@ add_executable(OpenglTest src/main.c ${GLAD_DIR}/src/glad.c
         libs/stb_image.h
         src/texture.c
         src/texture.h
+        src/camera.c
+        src/camera.h
 )
 
 # Ensure shaders are copied before building the executable

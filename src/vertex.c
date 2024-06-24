@@ -7,16 +7,11 @@
 
 
 
-Vertex vertex_new(const float *vertices, const int verticesSize, const int *indices, const int indicesSize)
+Vertex vertex_new(const float *vertices, const int verticesSize)
 {
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
 
     unsigned int VBO;
     glGenBuffers(1, &VBO);
@@ -32,6 +27,18 @@ Vertex vertex_new(const float *vertices, const int verticesSize, const int *indi
 
     Vertex vertex;
     vertex.ID = VAO;
+    return vertex;
+}
+
+Vertex vertex_new_element(const float *vertices, const int verticesSize, const int *indices, const int indicesSize)
+{
+    const Vertex vertex = vertex_new(vertices, verticesSize);
+
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
+
     return vertex;
 }
 
