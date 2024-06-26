@@ -10,7 +10,10 @@
 #include "cglm/cglm.h"
 #include "camera.h"
 #include "glfw/src/internal.h"
-#include "noise/noise1234.h"
+#include "noise.h";
+
+
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -112,38 +115,45 @@ int main(void)
     const Shader cubeShader = shader_new("shaders/shader.vert", "shaders/shader.frag");
     const Shader lightShader = shader_new("shaders/shader.vert", "shaders/lightShader.frag");
 
-    const Texture texture = texture_new("data/dirt.png", GL_RGBA);
-    texture_bind(&texture);
+    const Texture textureDiffuse = texture_new("data/container2.png", GL_RGBA);
+    const Texture textureSpecular = texture_new("data/container2_specular.png", GL_RGBA);
 
-    const unsigned int xSize = 16;
+    texture_bind(&textureDiffuse, 0);
+    texture_bind(&textureSpecular, 1);
+
+    const unsigned int xSize = 64;
     const unsigned int ySize = 16;
-    const unsigned int zSize = 16;
+    const unsigned int zSize = 64;
 
     float max = FLT_MIN;
     float min = FLT_MAX;
     vec3 chunk[xSize * ySize * zSize];
     int index = 0;
+    float wavelength = 16.0f;
+    int seed = 10;
     for(int z = 0; z < zSize; z++)
     {
         for(int y = 0; y < ySize; y++)
         {
             for(int x = 0; x < xSize; x++)
             {
-                float noise = (noise2((float)x / 16.0f + 0.1f , (float)z  / 16.0f + 0.1f) + 1.0) / 2.0f * 8;
+                float max_height = (noise_generate(x, z, 16, 5, seed));
 
-                if (noise > max)
+                if (max_height > max)
                 {
-                    max = noise;
+                    max = max_height;
                 }
-                if (noise < min)
+                if (max_height < min)
                 {
-                    min = noise;
+                    min = max_height;
                 }
 
-                if (noise < y)
+                max_height *= ySize;
+
+                if (y < max_height)
                 {
                     chunk[index][0] = (float) x;
-                    chunk[index][1] = -(float) y;
+                    chunk[index][1] = (float) y - ySize;
                     chunk[index][2] = (float) z;
                 }
                 else
@@ -158,6 +168,8 @@ int main(void)
         }
     }
 
+    printf("Max: %f, Min: %f\n", max, min);
+    printf("Max Height: %f, Min Height: %f\n", max * ySize, min * ySize);
 
     vec3 lightPos = {1.2f, 1.0f, 2.0f};
     camera = camera_new();
@@ -179,8 +191,12 @@ int main(void)
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightPos[0] = sin(glm_rad(oldTime * 90)) * 10;
-        lightPos[1] = cos(glm_rad(oldTime * 90)) * 10;
+        // lightPos[0] = sin(glm_rad(oldTime * 90)) * 16 + 8;
+        // lightPos[1] = cos(glm_rad(oldTime * 90)) * 16 -8;
+
+        lightPos[0] = 24.0f;
+        lightPos[1] = 16.0f;
+        lightPos[2] = 32.0f;
 
         // Update Camera
         // -------------
@@ -189,7 +205,7 @@ int main(void)
         shader_set_mat4(cubeShader, "view", view);
 
         mat4 projection;
-        glm_perspective(glm_rad(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f, projection);
+        glm_perspective(glm_rad(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f, projection);
         shader_set_mat4(cubeShader, "projection", projection);
 
         // Draw Chunk
@@ -201,10 +217,10 @@ int main(void)
         shader_set_mat4(cubeShader, "view", view);
         shader_set_mat4(cubeShader, "projection", projection);
 
-        shader_set_vec3(cubeShader, "material.ambient", 0.3f, 0.25f, 0.2f);
-        shader_set_vec3(cubeShader, "material.diffuse", 0.5f, 0.35f, 0.25f);
-        shader_set_vec3(cubeShader, "material.specular", 0.5f, 0.5f, 0.5f);
-        shader_set_float(cubeShader, "material.shininess", 32.0f);
+
+        shader_set_int(cubeShader, "material.diffuse", 0);
+        shader_set_int(cubeShader, "material.specular", 1);
+        shader_set_float(cubeShader, "material.shininess", 10.0f);
 
         vec3 lightColor;
         lightColor[0] = sin(glfwGetTime() * 2.0f);
@@ -217,8 +233,8 @@ int main(void)
         glm_vec3_mul(lightColor, (vec3) {0.2f, 0.2f, 0.2f}, ambientColor);
 
         shader_set_vec3(cubeShader, "light.position", lightPosView[0], lightPosView[1], lightPosView[2]);
-        shader_set_vec3(cubeShader, "light.ambient", ambientColor[0], ambientColor[1], ambientColor[2]);
-        shader_set_vec3(cubeShader, "light.diffuse", diffuseColor[0], diffuseColor[1], diffuseColor[2]);
+        shader_set_vec3(cubeShader, "light.ambient", 0.2f, 0.2f, 0.2f);
+        shader_set_vec3(cubeShader, "light.diffuse", 1.0f, 1.0f, 1.0f);
         shader_set_vec3(cubeShader, "light.specular", 1.0f, 1.0f, 1.0f);
 
         for (int i = 0; i < sizeof(chunk) / sizeof(chunk[0]); i++)

@@ -37,8 +37,10 @@ Texture texture_new(const char* texture_file_path, const GLenum format)
     return t;
 }
 
-void texture_bind(const Texture* texture)
+void texture_bind(const Texture* texture, const int index)
 {
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0 + index);
     glBindTexture(GL_TEXTURE_2D, texture->ID);
 }
+
+

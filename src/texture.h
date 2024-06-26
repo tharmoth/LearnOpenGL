@@ -13,6 +13,6 @@ typedef struct
 } Texture;
 
 Texture texture_new(const char* texture_file_path, const GLenum format);
-void texture_bind(const Texture* texture);
+void texture_bind(const Texture* texture, const int index);
 
 #endif //TEXTURE_H

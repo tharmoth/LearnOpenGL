@@ -58,6 +58,8 @@ add_executable(OpenglTest src/main.c ${GLAD_DIR}/src/glad.c
         libs/noise/noise1234.c
         libs/noise/noise1234.h
         libs/stb_image.h
+        src/noise.c
+        src/noise.h
 )
 
 # Ensure shaders are copied before building the executable
