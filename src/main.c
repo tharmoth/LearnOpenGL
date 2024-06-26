@@ -10,6 +10,7 @@
 #include "cglm/cglm.h"
 #include "camera.h"
 #include "glfw/src/internal.h"
+#include "noise/noise1234.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -60,79 +61,67 @@ int main(void)
     glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    float cubeVertices[] = {
-         // positions         // texture coords
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    const float cubeVertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-
-    vec3 cubePositions[] = {
-        { 0.0f,  0.0f,  0.0f},
-        { 2.0f,  5.0f, -15.0f},
-        {-1.5f, -2.2f, -2.5f},
-        {-3.8f, -2.0f, -12.3f},
-        { 2.4f, -0.4f, -3.5f},
-        {-1.7f,  3.0f, -7.5f},
-        { 1.3f, -2.0f, -2.5f},
-        { 1.5f,  2.0f, -2.5f},
-        { 1.5f,  0.2f, -1.5f},
-        {-1.3f,  1.0f, -1.5f}
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
     const Vertex vertex = vertex_new(cubeVertices, sizeof(cubeVertices));
+    const Vertex lightVertex = vertex_new(cubeVertices, sizeof(cubeVertices));
 
-    const Shader shader = shader_new("shaders/shader.vs", "shaders/shader.fs");
-    shader_use(shader);
-    shader_set_int(shader, "texture1", 0);
-    shader_set_int(shader, "texture2", 1);
+    const Shader cubeShader = shader_new("shaders/shader.vert", "shaders/shader.frag");
+    const Shader lightShader = shader_new("shaders/shader.vert", "shaders/lightShader.frag");
 
-    const Texture texture_one = texture_new("data/container.jpg", GL_RGB);
-    const Texture texture_two = texture_new("data/awesomeface.png", GL_RGBA);
+    // const Texture texture_one = texture_new("data/dirt.png", GL_RGBA);
+    // const Texture texture_two = texture_new("data/awesomeface.png", GL_RGBA);
+    //
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, texture_one.ID);
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, texture_two.ID);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture_one.ID);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture_two.ID);
+    vec3 lightPos = {1.2f, 1.0f, 2.0f};
 
+    camera = camera_new();
     float oldTime = glfwGetTime();
     // render loop
     // -----------
@@ -148,30 +137,47 @@ int main(void)
 
         // Rendering commands
         // ------------------
-        glClearColor(.2f, .3f, .3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Update Camera
         // -------------
         mat4 view;
-        camera_view_matrix(camera, view);
-        shader_set_mat4(shader, "view", view);
+        camera_view_matrix(&camera, view);
+        shader_set_mat4(cubeShader, "view", view);
 
         mat4 projection;
-        glm_perspective(glm_rad(camera.zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f, projection);
-        shader_set_mat4(shader, "projection", projection);
+        glm_perspective(glm_rad(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f, projection);
+        shader_set_mat4(cubeShader, "projection", projection);
 
-        // Draw Cubes
+        // Draw Chunk
         // ----------
-        for(unsigned int i = 0; i < 10; i++)
-        {
-            mat4 model;
-            glm_mat4_identity(model);
-            glm_translate(model, cubePositions[i]);
-            shader_set_mat4(shader, "model", model);
+        mat4 cubeModel;
+        glm_mat4_identity(cubeModel);
 
-            vertex_draw(vertex);
-        }
+        shader_use(cubeShader);
+        shader_set_vec3(cubeShader, "objectColor", 1.0f, 0.5f, 0.31f);
+        shader_set_vec3(cubeShader, "lightColor",  1.0f, 1.0f, 1.0f);
+        shader_set_vec3(cubeShader, "lightPos", lightPos[0], lightPos[1], lightPos[2]);
+        shader_set_vec3(cubeShader, "viewPos", camera.position[0], camera.position[1], camera.position[2]);
+        shader_set_mat4(cubeShader, "view", view);
+        shader_set_mat4(cubeShader, "projection", projection);
+        shader_set_mat4(cubeShader, "model", cubeModel);
+        vertex_draw(vertex);
+
+        // Draw Light
+        // ----------
+        mat4 lightModel;
+        glm_mat4_identity(lightModel);
+        glm_translate(lightModel, lightPos);
+        glm_scale(lightModel, (vec3) {0.2f, .2f, 0.2f});
+
+        shader_use(lightShader);
+        shader_set_mat4(lightShader, "view", view);
+        shader_set_mat4(lightShader, "projection", projection);
+        shader_set_mat4(lightShader, "model", lightModel);
+
+        vertex_draw(lightVertex);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -196,19 +202,19 @@ void processInput(GLFWwindow *window, const float delta)
     }
     if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        camera_process_keyboard(camera, LEFT, delta);
+        camera_process_keyboard(&camera, LEFT, delta);
     }
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        camera_process_keyboard(camera, RIGHT, delta);
+        camera_process_keyboard(&camera, RIGHT, delta);
     }
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        camera_process_keyboard(camera, BACKWARD, delta);
+        camera_process_keyboard(&camera, BACKWARD, delta);
     }
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        camera_process_keyboard(camera, FORWARD, delta);
+        camera_process_keyboard(&camera, FORWARD, delta);
     }
 }
 
@@ -226,16 +232,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    const float sensitivity = 0.1f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    camera_process_mouse(camera, xoffset, yoffset, true);
+    camera_process_mouse(&camera, xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera_process_scroll(camera, yoffset);
+    // camera_process_scroll(&camera, yoffset);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

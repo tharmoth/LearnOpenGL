@@ -27,6 +27,7 @@ include_directories(${GLFW_DIR}/include
         ${GLAD_DIR}/include
         ${SHADERS_DIR}
         ${LIBS_DIR}
+        ${LIBS_DIR}/noise
         ${CGLM_DIR}/include)
 
 # Ensure the shader files are copied to the build directory
@@ -50,11 +51,13 @@ add_executable(OpenglTest src/main.c ${GLAD_DIR}/src/glad.c
         src/shader.h
         src/vertex.c
         src/vertex.h
-        libs/stb_image.h
         src/texture.c
         src/texture.h
         src/camera.c
         src/camera.h
+        libs/noise/noise1234.c
+        libs/noise/noise1234.h
+        libs/stb_image.h
 )
 
 # Ensure shaders are copied before building the executable

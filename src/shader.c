@@ -120,6 +120,11 @@ void shader_set_float(const Shader shader, const char* name, const float value)
     glUniform1f(glGetUniformLocation(shader.ID, name), value);
 }
 
+void shader_set_vec3(const Shader shader, const char* name, const float x, const float y, const float z)
+{
+    glUniform3f(glGetUniformLocation(shader.ID, name), x, y, z);
+}
+
 void shader_set_vec4(const Shader shader, const char* name, const float x, const float y, const float z, const float w)
 {
     glUniform4f(glGetUniformLocation(shader.ID, name), x, y, z, w);
