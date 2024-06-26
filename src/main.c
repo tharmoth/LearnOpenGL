@@ -62,47 +62,48 @@ int main(void)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     const float cubeVertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        // Position           // Normal            // UV
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f, // Face 1
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f, // Face 2
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f, // Face 3
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, // Face 4
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f, // Face 5
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f, // Face 6
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
     const Vertex vertex = vertex_new(cubeVertices, sizeof(cubeVertices));
@@ -111,16 +112,54 @@ int main(void)
     const Shader cubeShader = shader_new("shaders/shader.vert", "shaders/shader.frag");
     const Shader lightShader = shader_new("shaders/shader.vert", "shaders/lightShader.frag");
 
-    // const Texture texture_one = texture_new("data/dirt.png", GL_RGBA);
-    // const Texture texture_two = texture_new("data/awesomeface.png", GL_RGBA);
-    //
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, texture_one.ID);
-    // glActiveTexture(GL_TEXTURE1);
-    // glBindTexture(GL_TEXTURE_2D, texture_two.ID);
+    const Texture texture = texture_new("data/dirt.png", GL_RGBA);
+    texture_bind(&texture);
+
+    const unsigned int xSize = 16;
+    const unsigned int ySize = 16;
+    const unsigned int zSize = 16;
+
+    float max = FLT_MIN;
+    float min = FLT_MAX;
+    vec3 chunk[xSize * ySize * zSize];
+    int index = 0;
+    for(int z = 0; z < zSize; z++)
+    {
+        for(int y = 0; y < ySize; y++)
+        {
+            for(int x = 0; x < xSize; x++)
+            {
+                float noise = (noise2((float)x / 16.0f + 0.1f , (float)z  / 16.0f + 0.1f) + 1.0) / 2.0f * 8;
+
+                if (noise > max)
+                {
+                    max = noise;
+                }
+                if (noise < min)
+                {
+                    min = noise;
+                }
+
+                if (noise < y)
+                {
+                    chunk[index][0] = (float) x;
+                    chunk[index][1] = -(float) y;
+                    chunk[index][2] = (float) z;
+                }
+                else
+                {
+                    chunk[index][0] = -INT_MIN;
+                    chunk[index][1] = -INT_MIN;
+                    chunk[index][2] = -INT_MIN;
+                }
+
+                index++;
+            }
+        }
+    }
+
 
     vec3 lightPos = {1.2f, 1.0f, 2.0f};
-
     camera = camera_new();
     float oldTime = glfwGetTime();
     // render loop
@@ -140,6 +179,9 @@ int main(void)
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        lightPos[0] = sin(glm_rad(oldTime * 90)) * 10;
+        lightPos[1] = cos(glm_rad(oldTime * 90)) * 10;
+
         // Update Camera
         // -------------
         mat4 view;
@@ -152,18 +194,50 @@ int main(void)
 
         // Draw Chunk
         // ----------
-        mat4 cubeModel;
-        glm_mat4_identity(cubeModel);
+        vec3 lightPosView;
+        glm_mat4_mulv3(view, lightPos, 1, lightPosView);
 
         shader_use(cubeShader);
-        shader_set_vec3(cubeShader, "objectColor", 1.0f, 0.5f, 0.31f);
-        shader_set_vec3(cubeShader, "lightColor",  1.0f, 1.0f, 1.0f);
-        shader_set_vec3(cubeShader, "lightPos", lightPos[0], lightPos[1], lightPos[2]);
-        shader_set_vec3(cubeShader, "viewPos", camera.position[0], camera.position[1], camera.position[2]);
         shader_set_mat4(cubeShader, "view", view);
         shader_set_mat4(cubeShader, "projection", projection);
-        shader_set_mat4(cubeShader, "model", cubeModel);
-        vertex_draw(vertex);
+
+        shader_set_vec3(cubeShader, "material.ambient", 0.3f, 0.25f, 0.2f);
+        shader_set_vec3(cubeShader, "material.diffuse", 0.5f, 0.35f, 0.25f);
+        shader_set_vec3(cubeShader, "material.specular", 0.5f, 0.5f, 0.5f);
+        shader_set_float(cubeShader, "material.shininess", 32.0f);
+
+        vec3 lightColor;
+        lightColor[0] = sin(glfwGetTime() * 2.0f);
+        lightColor[1] = sin(glfwGetTime() * 0.7f);
+        lightColor[2] = sin(glfwGetTime() * 1.3f);
+
+        vec3 diffuseColor;
+        glm_vec3_mul(lightColor, (vec3) {0.5f, 0.5f, 0.5f}, diffuseColor);
+        vec3 ambientColor;
+        glm_vec3_mul(lightColor, (vec3) {0.2f, 0.2f, 0.2f}, ambientColor);
+
+        shader_set_vec3(cubeShader, "light.position", lightPosView[0], lightPosView[1], lightPosView[2]);
+        shader_set_vec3(cubeShader, "light.ambient", ambientColor[0], ambientColor[1], ambientColor[2]);
+        shader_set_vec3(cubeShader, "light.diffuse", diffuseColor[0], diffuseColor[1], diffuseColor[2]);
+        shader_set_vec3(cubeShader, "light.specular", 1.0f, 1.0f, 1.0f);
+
+        for (int i = 0; i < sizeof(chunk) / sizeof(chunk[0]); i++)
+        {
+            mat4 cubeModel;
+            glm_mat4_identity(cubeModel);
+            glm_translate(cubeModel, chunk[i]);
+
+            mat3 normal;
+            mat4 normalTransform;
+            glm_mat4_mul(cubeModel, view, normalTransform);
+            glm_mat4_inv(normalTransform, normalTransform);
+            glm_mat4_transpose(normalTransform);
+            glm_mat4_pick3(normalTransform, normal);
+
+            shader_set_mat3(cubeShader, "normal", normal);
+            shader_set_mat4(cubeShader, "model", cubeModel);
+            vertex_draw(vertex);
+        }
 
         // Draw Light
         // ----------
@@ -176,6 +250,7 @@ int main(void)
         shader_set_mat4(lightShader, "view", view);
         shader_set_mat4(lightShader, "projection", projection);
         shader_set_mat4(lightShader, "model", lightModel);
+        shader_set_vec3(lightShader, "color", lightColor[0], lightColor[1], lightColor[2]);
 
         vertex_draw(lightVertex);
 

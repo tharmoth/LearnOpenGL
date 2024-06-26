@@ -36,3 +36,9 @@ Texture texture_new(const char* texture_file_path, const GLenum format)
     t.ID = texture;
     return t;
 }
+
+void texture_bind(const Texture* texture)
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture->ID);
+}
