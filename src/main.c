@@ -29,6 +29,8 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
+float cutoff = 12.5f;
+
 int main(void)
 {
     // glfw: initialize and configure
@@ -171,7 +173,8 @@ int main(void)
     printf("Max: %f, Min: %f\n", max, min);
     printf("Max Height: %f, Min Height: %f\n", max * ySize, min * ySize);
 
-    vec3 lightPos = {1.2f, 1.0f, 2.0f};
+    vec3 lightPos = {32.0f, -4.0f, 32.0f};
+    vec3 lightDir = {1.0f, -0.5f, 0.0f};
     camera = camera_new();
     float oldTime = glfwGetTime();
     // render loop
@@ -188,15 +191,8 @@ int main(void)
 
         // Rendering commands
         // ------------------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // lightPos[0] = sin(glm_rad(oldTime * 90)) * 16 + 8;
-        // lightPos[1] = cos(glm_rad(oldTime * 90)) * 16 -8;
-
-        lightPos[0] = 24.0f;
-        lightPos[1] = 16.0f;
-        lightPos[2] = 32.0f;
 
         // Update Camera
         // -------------
@@ -211,31 +207,33 @@ int main(void)
         // Draw Chunk
         // ----------
         vec3 lightPosView;
-        glm_mat4_mulv3(view, lightPos, 1, lightPosView);
+        glm_mat4_mulv3(view, camera.position, 1, lightPosView);
+
+        mat4 viewInv;
+        vec3 lightDirView;
+        glm_mat4_inv(view, viewInv);
+        glm_mat4_transpose(viewInv);
+        glm_mat4_mulv3(viewInv, camera.front, 1, lightDirView);
 
         shader_use(cubeShader);
         shader_set_mat4(cubeShader, "view", view);
         shader_set_mat4(cubeShader, "projection", projection);
-
-
         shader_set_int(cubeShader, "material.diffuse", 0);
         shader_set_int(cubeShader, "material.specular", 1);
         shader_set_float(cubeShader, "material.shininess", 10.0f);
 
-        vec3 lightColor;
-        lightColor[0] = sin(glfwGetTime() * 2.0f);
-        lightColor[1] = sin(glfwGetTime() * 0.7f);
-        lightColor[2] = sin(glfwGetTime() * 1.3f);
-
-        vec3 diffuseColor;
-        glm_vec3_mul(lightColor, (vec3) {0.5f, 0.5f, 0.5f}, diffuseColor);
-        vec3 ambientColor;
-        glm_vec3_mul(lightColor, (vec3) {0.2f, 0.2f, 0.2f}, ambientColor);
-
         shader_set_vec3(cubeShader, "light.position", lightPosView[0], lightPosView[1], lightPosView[2]);
-        shader_set_vec3(cubeShader, "light.ambient", 0.2f, 0.2f, 0.2f);
-        shader_set_vec3(cubeShader, "light.diffuse", 1.0f, 1.0f, 1.0f);
+        shader_set_vec3(cubeShader, "light.direction", lightDirView[0], lightDirView[1], lightDirView[2]);
+
+        shader_set_float(cubeShader, "light.cutoff", glm_rad(cutoff - 10));
+        shader_set_float(cubeShader, "light.outerCutoff", glm_rad(cutoff));
+        shader_set_vec3(cubeShader, "light.ambient", 0.1f, 0.1f, 0.1f);
+        shader_set_vec3(cubeShader, "light.diffuse", 0.8f, 0.8f, 0.8f);
         shader_set_vec3(cubeShader, "light.specular", 1.0f, 1.0f, 1.0f);
+
+        shader_set_float(cubeShader, "light.constant", 1.0f);
+        shader_set_float(cubeShader, "light.linear", 0.09f);
+        shader_set_float(cubeShader, "light.quadratic", 0.032f);
 
         for (int i = 0; i < sizeof(chunk) / sizeof(chunk[0]); i++)
         {
@@ -266,7 +264,7 @@ int main(void)
         shader_set_mat4(lightShader, "view", view);
         shader_set_mat4(lightShader, "projection", projection);
         shader_set_mat4(lightShader, "model", lightModel);
-        shader_set_vec3(lightShader, "color", lightColor[0], lightColor[1], lightColor[2]);
+        shader_set_vec3(lightShader, "color", 1.0f, 1.0f, 1.0f);
 
         vertex_draw(lightVertex);
 
@@ -306,6 +304,16 @@ void processInput(GLFWwindow *window, const float delta)
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
         camera_process_keyboard(&camera, FORWARD, delta);
+    }
+    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        cutoff = glm_clamp(cutoff + 45.0f * delta, 0.0, 360.0f);
+        printf("Cutoff: %f\n", cutoff);
+    }
+    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        cutoff = glm_clamp(cutoff - 45.0f * delta, 0.0, 360.0f);
+        printf("Cutoff: %f\n", cutoff);
     }
 }
 

@@ -14,11 +14,9 @@ uniform mat3 normal;
 
 void main()
 {
-    Normal = normal * aNormal;
-
     gl_Position = projection * view * vec4(vec3(model * vec4(aPos, 1.0)), 1.0);
 
     FragPos = vec3(view * model * vec4(aPos, 1.0));
-
+    Normal = normal * aNormal;
     UV = aUV;
 }
