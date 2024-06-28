@@ -117,7 +117,7 @@ int main(void)
     const Shader cubeShader = shader_new("shaders/shader.vert", "shaders/shader.frag");
     const Shader lightShader = shader_new("shaders/shader.vert", "shaders/lightShader.frag");
 
-    const Texture textureDiffuse = texture_new("data/container2.png", GL_RGBA);
+    const Texture textureDiffuse = texture_new("data/dirt.png", GL_RGBA);
     const Texture textureSpecular = texture_new("data/container2_specular.png", GL_RGBA);
 
     texture_bind(&textureDiffuse, 0);
@@ -170,11 +170,14 @@ int main(void)
         }
     }
 
-    printf("Max: %f, Min: %f\n", max, min);
-    printf("Max Height: %f, Min Height: %f\n", max * ySize, min * ySize);
+    vec3 pointLightPositions[] = {
+        {16.0f, -2.0f, 16.0f},
+        {16.0f, -2.0f, 32.0f},
+        {32.0f, -2.0f, 16.0f},
+        {32.0f, -2.0f, 32.0f},
+    };
+    vec3 directionalLightDirection = {-0.2f, -1.0f, -0.3f};
 
-    vec3 lightPos = {32.0f, -4.0f, 32.0f};
-    vec3 lightDir = {1.0f, -0.5f, 0.0f};
     camera = camera_new();
     float oldTime = glfwGetTime();
     // render loop
@@ -206,35 +209,78 @@ int main(void)
 
         // Draw Chunk
         // ----------
-        vec3 lightPosView;
-        glm_mat4_mulv3(view, camera.position, 1, lightPosView);
-
         mat4 viewInv;
-        vec3 lightDirView;
         glm_mat4_inv(view, viewInv);
         glm_mat4_transpose(viewInv);
-        glm_mat4_mulv3(viewInv, camera.front, 1, lightDirView);
 
         shader_use(cubeShader);
         shader_set_mat4(cubeShader, "view", view);
         shader_set_mat4(cubeShader, "projection", projection);
+
         shader_set_int(cubeShader, "material.diffuse", 0);
         shader_set_int(cubeShader, "material.specular", 1);
         shader_set_float(cubeShader, "material.shininess", 10.0f);
 
-        shader_set_vec3(cubeShader, "light.position", lightPosView[0], lightPosView[1], lightPosView[2]);
-        shader_set_vec3(cubeShader, "light.direction", lightDirView[0], lightDirView[1], lightDirView[2]);
+        // Setup Directional Light
+        // -----------------------
+        vec3 directionalLightDirectionView;
+        glm_mat4_mulv3(viewInv, directionalLightDirection, 1, directionalLightDirectionView);
+        shader_set_vec3(cubeShader,
+            "directionalLight.direction",
+            directionalLightDirectionView[0],
+            directionalLightDirectionView[1],
+            directionalLightDirectionView[2]
+            );
+        shader_set_vec3(cubeShader, "directionalLight.ambient", 0.05f, 0.05f, 0.05f);
+        shader_set_vec3(cubeShader, "directionalLight.diffuse", 0.1f, 0.1f, 0.1f);
+        shader_set_vec3(cubeShader, "directionalLight.specular", 0.05f, 0.05f, 0.05f);
 
-        shader_set_float(cubeShader, "light.cutoff", glm_rad(cutoff - 10));
-        shader_set_float(cubeShader, "light.outerCutoff", glm_rad(cutoff));
-        shader_set_vec3(cubeShader, "light.ambient", 0.1f, 0.1f, 0.1f);
-        shader_set_vec3(cubeShader, "light.diffuse", 0.8f, 0.8f, 0.8f);
-        shader_set_vec3(cubeShader, "light.specular", 1.0f, 1.0f, 1.0f);
+        // Setup Point Lights
+        // ------------------
+        char uniformName[50];
+        for (int i = 0; i < sizeof(pointLightPositions) / sizeof(pointLightPositions[0]); i++)
+        {
+            vec3 pointLightPosView;
+            glm_mat4_mulv3(view, pointLightPositions[i], 1, pointLightPosView);
+            sprintf(uniformName, "pointLights[%d].position", i);
+            shader_set_vec3(cubeShader, uniformName, pointLightPosView[0], pointLightPosView[1], pointLightPosView[2]);
+            sprintf(uniformName, "pointLights[%d].ambient", i);
+            shader_set_vec3(cubeShader, uniformName, 0.05f, 0.05f, 0.05f);
+            sprintf(uniformName, "pointLights[%d].diffuse", i);
+            shader_set_vec3(cubeShader, uniformName, 0.8f, 0.8f, 0.8f);
+            sprintf(uniformName, "pointLights[%d].specular", i);
+            shader_set_vec3(cubeShader, uniformName, 1.0f, 1.0f, 1.0f);
+            sprintf(uniformName, "pointLights[%d].constant", i);
+            shader_set_float(cubeShader, uniformName, 1.0f);
+            sprintf(uniformName, "pointLights[%d].linear", i);
+            shader_set_float(cubeShader, uniformName, 0.09f);
+            sprintf(uniformName, "pointLights[%d].quadratic", i);
+            shader_set_float(cubeShader, uniformName, 0.032f);
+        }
 
-        shader_set_float(cubeShader, "light.constant", 1.0f);
-        shader_set_float(cubeShader, "light.linear", 0.09f);
-        shader_set_float(cubeShader, "light.quadratic", 0.032f);
+        // Setup Spot Light
+        // ----------------
+        vec3 spotLightPosView;
+        glm_mat4_mulv3(view, camera.position, 1, spotLightPosView);
 
+        vec3 spotLightDirView;
+        glm_mat4_mulv3(viewInv, camera.front, 1, spotLightDirView);
+
+        shader_set_vec3(cubeShader, "spotLight.position", spotLightPosView[0], spotLightPosView[1], spotLightPosView[2]);
+        shader_set_vec3(cubeShader, "spotLight.direction", spotLightDirView[0], spotLightDirView[1], spotLightDirView[2]);
+
+        shader_set_float(cubeShader, "spotLight.innerCutoff", glm_rad(cutoff - 10));
+        shader_set_float(cubeShader, "spotLight.outerCutoff", glm_rad(cutoff));
+        shader_set_vec3(cubeShader, "spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        shader_set_vec3(cubeShader, "spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        shader_set_vec3(cubeShader, "spotLight.specular", 1.0f, 1.0f, 1.0f);
+
+        shader_set_float(cubeShader, "spotLight.constant", 1.0f);
+        shader_set_float(cubeShader, "spotLight.linear", 0.09f);
+        shader_set_float(cubeShader, "spotLight.quadratic", 0.032f);
+
+        // Draw Cubes
+        // ----------
         for (int i = 0; i < sizeof(chunk) / sizeof(chunk[0]); i++)
         {
             mat4 cubeModel;
@@ -253,20 +299,23 @@ int main(void)
             vertex_draw(vertex);
         }
 
-        // Draw Light
-        // ----------
-        mat4 lightModel;
-        glm_mat4_identity(lightModel);
-        glm_translate(lightModel, lightPos);
-        glm_scale(lightModel, (vec3) {0.2f, .2f, 0.2f});
+        // Draw Light Cubes
+        // ----------------
+        for (int i = 0; i < sizeof(pointLightPositions) / sizeof(pointLightPositions[0]); i++)
+        {
+            mat4 lightModel;
+            glm_mat4_identity(lightModel);
+            glm_translate(lightModel, pointLightPositions[i]);
+            glm_scale(lightModel, (vec3) {0.2f, .2f, 0.2f});
 
-        shader_use(lightShader);
-        shader_set_mat4(lightShader, "view", view);
-        shader_set_mat4(lightShader, "projection", projection);
-        shader_set_mat4(lightShader, "model", lightModel);
-        shader_set_vec3(lightShader, "color", 1.0f, 1.0f, 1.0f);
+            shader_use(lightShader);
+            shader_set_mat4(lightShader, "view", view);
+            shader_set_mat4(lightShader, "projection", projection);
+            shader_set_mat4(lightShader, "model", lightModel);
+            shader_set_vec3(lightShader, "color", 1.0f, 1.0f, 1.0f);
 
-        vertex_draw(lightVertex);
+            vertex_draw(lightVertex);
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
