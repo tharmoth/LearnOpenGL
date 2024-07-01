@@ -10,6 +10,7 @@
 typedef struct
 {
     unsigned int ID;
+    const char* type;
 } Texture;
 
 Texture texture_new(const char* texture_file_path, const GLenum format);

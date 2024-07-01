@@ -5,15 +5,40 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include "shader.h"
+#include "cglm/cglm.h"
+#include "texture.h"
+
 typedef struct
 {
-    unsigned int ID;
-    unsigned int EBO;
+    unsigned int VAO;
+    const Texture* textures;
+    const unsigned int texturesSize;
+} Mesh;
+
+typedef struct
+{
+    vec3 position;
+    vec3 normal;
+    vec2 uv;
 } Vertex;
 
-Vertex mesh_new(const float *vertices, int verticesSize);
-Vertex mesh_new_element(const float *vertices, const int verticesSize, const int *indices, const int indicesSize);
-void mesh_draw(Vertex vertex);
-void mesh_draw_element(Vertex vertex);
+Mesh mesh_process(vec3* position,
+    vec3* normal,
+    vec2* uv,
+    const unsigned int vertexCount,
+    const int* indices,
+    const unsigned int indexCount);
+
+Mesh mesh_new(
+    const Vertex *vertices,
+    const int verticesSize,
+    const int *indices,
+    const int indicesSize,
+    Texture* textures,
+    int texturesSize
+    );
+
+void mesh_draw(const Mesh* mesh, const Shader shader);
 
 #endif MESH_H

@@ -41,7 +41,7 @@ add_custom_target(copy_shaders ALL
         COMMENT "Copying shaders to build directory"
 )
 
-## Ensure the data files are copied to the build directory
+# Ensure the data files are copied to the build directory
 add_custom_target(copy_data ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${DATA_DIR} ${CMAKE_BINARY_DIR}/data
@@ -65,9 +65,10 @@ add_executable(OpenglTest src/main.c ${GLAD_DIR}/src/glad.c
         src/noise.h
         src/world.c
         src/world.h
+        src/cube.h
 )
 
-# Ensure shaders are copied before building the executable
+## Ensure shaders are copied before building the executable
 add_dependencies(OpenglTest copy_shaders
                  OpenglTest copy_data)
 
