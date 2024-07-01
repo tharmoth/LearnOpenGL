@@ -3,9 +3,9 @@
 //
 
 #include <glad/glad.h>
-#include "vertex.h"
+#include "mesh.h"
 
-Vertex vertex_new(const float *vertices, const int verticesSize)
+Vertex mesh_new(const float *vertices, const int verticesSize)
 {
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -31,22 +31,28 @@ Vertex vertex_new(const float *vertices, const int verticesSize)
     return vertex;
 }
 
-Vertex vertex_new_element(const float *vertices, const int verticesSize, const int *indices, const int indicesSize)
+Vertex mesh_new_element(const float *vertices, const int verticesSize, const int *indices, const int indicesSize)
 {
-    const Vertex vertex = vertex_new(vertices, verticesSize);
+    Vertex vertex = mesh_new(vertices, verticesSize);
 
     unsigned int EBO;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
 
+    vertex.EBO = EBO;
+
     return vertex;
 }
 
-void vertex_draw(const Vertex vertex)
+void mesh_draw(const Vertex vertex)
 {
     glBindVertexArray(vertex.ID);
-    //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    // glBindVertexArray(0);
+}
+
+void mesh_draw_element(const Vertex vertex) {
+    glBindVertexArray(vertex.ID);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex.EBO);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }

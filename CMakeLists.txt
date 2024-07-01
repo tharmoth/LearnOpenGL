@@ -13,6 +13,7 @@ set(GLFW_DIR libs/glfw)
 set(GLAD_DIR libs/glad)
 set(LIBS_DIR ${CMAKE_SOURCE_DIR}/libs)
 set(CGLM_DIR libs/cglm)
+set(ASSIMP_DIR libs/assimp)
 
 # Build GLFW as a static library
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -22,15 +23,17 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 # Add GLFW
 add_subdirectory(${GLFW_DIR} glfw)
+add_subdirectory(${ASSIMP_DIR} assimp)
 
 include_directories(${GLFW_DIR}/include
+        ${ASSIMP_DIR}/include
         ${GLAD_DIR}/include
         ${SHADERS_DIR}
         ${LIBS_DIR}
         ${LIBS_DIR}/noise
         ${CGLM_DIR}/include)
 
-# Ensure the shader files are copied to the build directory
+## Ensure the shader files are copied to the build directory
 add_custom_target(copy_shaders ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${SHADERS_DIR} ${CMAKE_BINARY_DIR}/shaders
@@ -38,7 +41,7 @@ add_custom_target(copy_shaders ALL
         COMMENT "Copying shaders to build directory"
 )
 
-# Ensure the shader files are copied to the build directory
+## Ensure the data files are copied to the build directory
 add_custom_target(copy_data ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${DATA_DIR} ${CMAKE_BINARY_DIR}/data
@@ -49,8 +52,8 @@ add_custom_target(copy_data ALL
 add_executable(OpenglTest src/main.c ${GLAD_DIR}/src/glad.c
         src/shader.c
         src/shader.h
-        src/vertex.c
-        src/vertex.h
+        src/mesh.c
+        src/mesh.h
         src/texture.c
         src/texture.h
         src/camera.c
@@ -60,6 +63,8 @@ add_executable(OpenglTest src/main.c ${GLAD_DIR}/src/glad.c
         libs/stb_image.h
         src/noise.c
         src/noise.h
+        src/world.c
+        src/world.h
 )
 
 # Ensure shaders are copied before building the executable
@@ -67,3 +72,4 @@ add_dependencies(OpenglTest copy_shaders
                  OpenglTest copy_data)
 
 target_link_libraries(OpenglTest glfw ${GLFW_LIBRARIES})
+target_link_libraries(OpenglTest assimp ${ASSIMP_LIBRARIES})

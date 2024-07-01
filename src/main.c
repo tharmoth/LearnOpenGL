@@ -6,14 +6,11 @@
 #include <math.h>
 #include "shader.h"
 #include "texture.h"
-#include "vertex.h"
+#include "mesh.h"
 #include "cglm/cglm.h"
 #include "camera.h"
 #include "glfw/src/internal.h"
-#include "noise.h";
-
-
-
+#include "world.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -111,8 +108,12 @@ int main(void)
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
-    const Vertex vertex = vertex_new(cubeVertices, sizeof(cubeVertices));
-    const Vertex lightVertex = vertex_new(cubeVertices, sizeof(cubeVertices));
+    unsigned int indices[36];
+    for (int i = 0; i < 36; i++) {
+        indices[i] = i;
+    }
+
+    const Vertex mesh = mesh_new_element(cubeVertices, sizeof(cubeVertices), indices, sizeof(indices));
 
     const Shader cubeShader = shader_new("shaders/shader.vert", "shaders/shader.frag");
     const Shader lightShader = shader_new("shaders/shader.vert", "shaders/lightShader.frag");
@@ -123,52 +124,7 @@ int main(void)
     texture_bind(&textureDiffuse, 0);
     texture_bind(&textureSpecular, 1);
 
-    const unsigned int xSize = 64;
-    const unsigned int ySize = 16;
-    const unsigned int zSize = 64;
-
-    float max = FLT_MIN;
-    float min = FLT_MAX;
-    vec3 chunk[xSize * ySize * zSize];
-    int index = 0;
-    float wavelength = 16.0f;
-    int seed = 10;
-    for(int z = 0; z < zSize; z++)
-    {
-        for(int y = 0; y < ySize; y++)
-        {
-            for(int x = 0; x < xSize; x++)
-            {
-                float max_height = (noise_generate(x, z, 16, 5, seed));
-
-                if (max_height > max)
-                {
-                    max = max_height;
-                }
-                if (max_height < min)
-                {
-                    min = max_height;
-                }
-
-                max_height *= ySize;
-
-                if (y < max_height)
-                {
-                    chunk[index][0] = (float) x;
-                    chunk[index][1] = (float) y - ySize;
-                    chunk[index][2] = (float) z;
-                }
-                else
-                {
-                    chunk[index][0] = -INT_MIN;
-                    chunk[index][1] = -INT_MIN;
-                    chunk[index][2] = -INT_MIN;
-                }
-
-                index++;
-            }
-        }
-    }
+    World world = world_generate();
 
     vec3 pointLightPositions[] = {
         {16.0f, -2.0f, 16.0f},
@@ -281,11 +237,11 @@ int main(void)
 
         // Draw Cubes
         // ----------
-        for (int i = 0; i < sizeof(chunk) / sizeof(chunk[0]); i++)
+        for (int i = 0; i < world.size; i++)
         {
             mat4 cubeModel;
             glm_mat4_identity(cubeModel);
-            glm_translate(cubeModel, chunk[i]);
+            glm_translate(cubeModel, world.data[i]);
 
             mat3 normal;
             mat4 normalTransform;
@@ -296,7 +252,7 @@ int main(void)
 
             shader_set_mat3(cubeShader, "normal", normal);
             shader_set_mat4(cubeShader, "model", cubeModel);
-            vertex_draw(vertex);
+            mesh_draw_element(mesh);
         }
 
         // Draw Light Cubes
@@ -314,7 +270,7 @@ int main(void)
             shader_set_mat4(lightShader, "model", lightModel);
             shader_set_vec3(lightShader, "color", 1.0f, 1.0f, 1.0f);
 
-            vertex_draw(lightVertex);
+            mesh_draw_element(mesh);
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
